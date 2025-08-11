@@ -11,11 +11,11 @@ import MemoryCard from './MemoryCard.vue'
 
 <style scoped>
 .game-area {
+  border-block: 1px solid #000;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-block: 1px solid #000;
-  padding: 1rem;
 }
 
 .game-area__play-button {
