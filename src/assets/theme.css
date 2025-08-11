@@ -1,0 +1,40 @@
+@layer theme {
+  :root {
+    --font-main: Arial, Helvetica, sans-serif;
+    --font-heading: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+
+    --brand-color-10: oklch(10% 0.04955 207.603);
+    --brand-color-20: oklch(20% 0.04955 207.603);
+    --brand-color-30: oklch(30% 0.04955 207.603);
+    --brand-color-40: oklch(40% 0.04955 207.603);
+    --brand-color-50: oklch(50% 0.04955 207.603);
+    --brand-color-60: oklch(60% 0.04955 207.603);
+    --brand-color-70: oklch(70% 0.04955 207.603);
+    --brand-color-80: oklch(80% 0.04955 207.603);
+    --brand-color-90: oklch(90% 0.04955 207.603);
+
+    --secondary-color-10: oklch(10% 0.05054 33.553);
+    --secondary-color-20: oklch(20% 0.05054 33.553);
+    --secondary-color-30: oklch(30% 0.05054 33.553);
+    --secondary-color-40: oklch(40% 0.05054 33.553);
+    --secondary-color-50: oklch(50% 0.05054 33.553);
+    --secondary-color-60: oklch(60% 0.05054 33.553);
+    --secondary-color-70: oklch(70% 0.05054 33.553);
+    --secondary-color-80: oklch(80% 0.05054 33.553);
+    --secondary-color-90: oklch(90% 0.05054 33.553);
+
+    --gray-10: oklch(10% 0.01 165deg);
+    --gray-20: oklch(20% 0.01 165deg);
+    --gray-30: oklch(30% 0.01 165deg);
+    --gray-40: oklch(40% 0.01 165deg);
+    --gray-50: oklch(50% 0.01 165deg);
+    --gray-60: oklch(60% 0.01 165deg);
+    --gray-70: oklch(70% 0.01 165deg);
+    --gray-80: oklch(80% 0.01 165deg);
+    --gray-90: oklch(90% 0.01 165deg);
+
+    --background-color: var(--brand-color-80);
+    --foreground-color: var(--gray-30);
+    --accent-color: var(--secondary-color-80);
+  }
+}
