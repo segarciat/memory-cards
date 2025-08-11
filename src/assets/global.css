@@ -6,7 +6,11 @@
   }
 
   a:any-link {
-    color: var(--secondary-color-50);
+    color: var(--brand-color-50);
+  }
+
+  button {
+    cursor: pointer;
   }
 
   h1 {
