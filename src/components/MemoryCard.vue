@@ -1,10 +1,10 @@
 <script setup lang="ts">
-export interface CardHrefType {
+export interface MemoryCardProps {
   cardName: string
   cardBackHref: string
   cardFrontHref: string
 }
-const props = defineProps<CardHrefType>()
+const props = defineProps<MemoryCardProps>()
 import { ref } from 'vue'
 const isRevealed = ref(false)
 
