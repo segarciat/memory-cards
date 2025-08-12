@@ -1,9 +1,14 @@
 <script setup lang="ts">
+export interface CardHrefType {
+  cardName: string
+  cardBackHref: string
+  cardFrontHref: string
+}
+const props = defineProps<CardHrefType>()
 import { ref } from 'vue'
 const isRevealed = ref(false)
 
 function revealCard() {
-  console.log('clicked')
   isRevealed.value = !isRevealed.value
 }
 </script>
@@ -11,10 +16,10 @@ function revealCard() {
 <template>
   <button type="button" class="memory-card" :class="{ revealed: isRevealed }" @click="revealCard">
     <div class="memory-card__front">
-      <img src="/public/kenney-cards/PNG/cards-large/card_spades_02.png" alt="2 of spades" />
+      <img :src="props.cardFrontHref" :alt="props.cardName" />
     </div>
     <div class="memory-card__back">
-      <img src="/public/kenney-cards/PNG/cards-large/card_back.png" alt="Back of a card" />
+      <img :src="props.cardBackHref" alt="Back of a card" />
     </div>
   </button>
 </template>
