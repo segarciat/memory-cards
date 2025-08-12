@@ -30,3 +30,10 @@ export function subset<T>(a: T[], subsetSize: number): T[] {
 
   return Array.from(s).map((index) => a[index])
 }
+
+export function capitalize(s: string): string {
+  if (typeof s != 'string') {
+    throw Error('Input must be a string')
+  }
+  return s.length == 0 ? s : s[0].toUpperCase() + s.substring(1)
+}

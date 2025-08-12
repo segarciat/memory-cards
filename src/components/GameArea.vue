@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import MemoryCard from './MemoryCard.vue'
 import { shuffleArray, subset } from '@/utils'
+import GameOptionsForm from './GameOptionsForm.vue'
 
 export interface GameAreaProps {
   cardBackHref: string
@@ -9,16 +10,21 @@ export interface GameAreaProps {
     cardName: string
     cardFrontHref: string
   }>
-  numPairs: number
 }
 const props = defineProps<GameAreaProps>()
+
+const DIFFICULTIES = {
+  easy: 12,
+  medium: 24,
+  hard: 36,
+}
 
 const isPlaying = ref(false)
 let shuffledCards: GameAreaProps['cardFrontHrefs'] = []
 
-function play() {
+function play(difficulty: keyof typeof DIFFICULTIES) {
   isPlaying.value = true
-  shuffledCards = subset(props.cardFrontHrefs, props.numPairs)
+  shuffledCards = subset(props.cardFrontHrefs, DIFFICULTIES[difficulty])
   shuffledCards = [...shuffledCards, ...shuffledCards]
   shuffleArray(shuffledCards)
 }
@@ -26,8 +32,12 @@ function play() {
 
 <template>
   <main class="game-area" :class="{ playing: isPlaying }">
-    <button type="button" class="game-area__play-button" @click="play">Play</button>
-    <div class="cards-container">
+    <GameOptionsForm
+      class="game-area__game-options-form"
+      :game-difficulties="Object.keys(DIFFICULTIES)"
+      @play-game="play"
+    />
+    <div class="game-area__cards-container">
       <MemoryCard
         v-for="c in shuffledCards"
         :key="c.cardName"
@@ -48,21 +58,11 @@ function play() {
   align-items: center;
 }
 
-.game-area__play-button {
-  display: block;
-  font-size: 1.1rem;
-  padding: 0.8rem 1.7rem;
-  background-color: var(--brand-color-90);
-  color: var(--gray-30);
-  border-radius: 0.5rem;
-  border: none;
-}
-
-.game-area.playing .game-area__play-button {
+.game-area.playing .game-area__game-options-form {
   display: none;
 }
 
-.cards-container {
+.game-area__cards-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;

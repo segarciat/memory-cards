@@ -2,17 +2,11 @@
 import PageHeader from './components/PageHeader.vue'
 import GameArea, { type GameAreaProps } from './components/GameArea.vue'
 import PageFooter from './components/PageFooter.vue'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 
 const CARD_IMAGES_PATH = '/kenney-cards/PNG/cards-large/'
 const CARD_BACK_HREF = `${CARD_IMAGES_PATH}/card_back.png`
-const DIFFICULTIES = {
-  easy: 12,
-  medium: 24,
-  hard: 36,
-}
 
-const difficulty = ref<keyof typeof DIFFICULTIES>('easy')
 const cardFrontHrefs: GameAreaProps['cardFrontHrefs'] = []
 
 async function loadCardImageHrefs() {
@@ -33,11 +27,7 @@ onBeforeMount(async () => {
 
 <template>
   <PageHeader />
-  <GameArea
-    :card-back-href="CARD_BACK_HREF"
-    :card-front-hrefs="cardFrontHrefs"
-    :num-pairs="DIFFICULTIES[difficulty]"
-  />
+  <GameArea :card-back-href="CARD_BACK_HREF" :card-front-hrefs="cardFrontHrefs" />
   <PageFooter />
 </template>
 

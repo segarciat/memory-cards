@@ -16,6 +16,7 @@
 
 .page-header__title {
   margin-bottom: 0.4rem;
+  text-decoration: underline;
 }
 
 .page-header__description {
