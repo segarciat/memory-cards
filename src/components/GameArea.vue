@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, type Ref, onBeforeMount } from 'vue'
 import MemoryCard, { type CardHrefType } from './MemoryCard.vue'
+import { shuffleArray, subset } from '@/utils'
 
 const CARD_IMAGES_PATH = '/kenney-cards/PNG/cards-large/'
 const CARD_BACK_HREF = `${CARD_IMAGES_PATH}/card_back.png`
+const DIFFICULTIES = {
+  easy: 12,
+  medium: 24,
+  hard: 36,
+}
+
+const difficulty = ref('easy')
 const isPlaying = ref(false)
-let cardImageHrefs: Array<CardHrefType> = []
-let shuffledCards: Array<CardHrefType> = []
+let cardImageHrefs: CardHrefType[] = []
+let shuffledCards: CardHrefType[] = []
 
 function play() {
   isPlaying.value = true
-  // TODO: Shuffle array of cards when game starts
+  shuffledCards = subset(cardImageHrefs, DIFFICULTIES[difficulty.value])
+  shuffledCards = [...shuffledCards, ...shuffledCards]
+  shuffleArray(shuffledCards)
 }
 
-onMounted(async () => {
+async function loadCardImageHrefs() {
   const res = await fetch(`${CARD_IMAGES_PATH}/_cards.csv`)
   const data = await res.text()
   cardImageHrefs = data.split(/\s+/).map((cardName) => ({
@@ -21,6 +31,10 @@ onMounted(async () => {
     cardBackHref: CARD_BACK_HREF,
     cardFrontHref: `${CARD_IMAGES_PATH}/${cardName}.png`,
   }))
+}
+
+onBeforeMount(async () => {
+  await loadCardImageHrefs()
 })
 </script>
 
@@ -29,7 +43,7 @@ onMounted(async () => {
     <button type="button" class="game-area__play-button" @click="play">Play</button>
     <div class="cards-container">
       <MemoryCard
-        v-for="c in cardImageHrefs"
+        v-for="c in shuffledCards"
         :key="c.cardName"
         :card-front-href="c.cardFrontHref"
         :card-name="c.cardName"
