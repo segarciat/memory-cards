@@ -17,27 +17,36 @@ const emit = defineEmits(['flipCard'])
     type="button"
     class="memory-card"
     :class="{ revealed: props.isRevealed, matched: props.isMatched, mismatched: isMisMatched }"
-    :disabled="props.isMatched"
+    :disabled="props.isMatched || (props.isRevealed && !props.isMisMatched)"
     @click="$emit('flipCard', props.index)"
   >
-    <div class="memory-card__front">
-      <img :src="props.cardFrontHref" :alt="props.cardName" />
-    </div>
-    <div class="memory-card__back">
-      <img :src="props.cardBackHref" alt="Back of a card" />
+    <div class="memory-card__inner-container">
+      <div class="memory-card__front">
+        <img :src="props.cardFrontHref" :alt="props.cardName" />
+      </div>
+      <div class="memory-card__back">
+        <img :src="props.cardBackHref" alt="Back of a card" />
+      </div>
     </div>
   </button>
 </template>
 
 <style lang="css" scoped>
+/* TODO: Add initial card shake animation */
 .memory-card {
   --flip-animation-duration: 0.5s;
+  padding-block: 0.5rem;
   border: 1px solid var(--accent-color);
   border-radius: 0.25rem;
   position: relative;
   perspective: 1000px;
   background-color: transparent;
   transition: background-color var(--flip-animation-duration);
+}
+
+/* This enables adding padding in .memory-card in spite of the absolute positioning of the back card */
+.memory-card__inner-container {
+  position: relative;
 }
 
 .memory-card__front {

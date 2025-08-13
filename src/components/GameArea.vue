@@ -11,13 +11,17 @@ export interface GameAreaProps {
     cardName: string
     cardFrontHref: string
   }>
+  sounds: {
+    flip: HTMLAudioElement
+    shuffle: HTMLAudioElement
+  }
 }
 const props = defineProps<GameAreaProps>()
 
 const DIFFICULTIES = {
-  easy: 12,
-  medium: 24,
-  hard: 36,
+  easy: Math.max(12, props.cardFrontHrefs.length),
+  medium: Math.max(24, props.cardFrontHrefs.length),
+  hard: Math.max(36, props.cardFrontHrefs.length),
 }
 const MISMATCH_FLIP_DELAY = 1000
 
@@ -44,6 +48,15 @@ function play(difficulty: keyof typeof DIFFICULTIES) {
     isMatched: false,
   }))
   isPlaying.value = true
+  clearFlippedCards()
+  // props.sounds.shuffle.currentTime = 0.18
+  props.sounds.shuffle.play()
+}
+
+function clearFlippedCards() {
+  clearTimeout(flippedCards.value.timeoutId)
+  flippedCards.value.indices.splice(0)
+  flippedCards.value.timeoutId = undefined
 }
 
 function hideMismatchedCards() {
@@ -69,6 +82,7 @@ function flipCard(cardIndex: number) {
 
   if (flippedCards.value.indices.length === 0) {
     flippedCards.value.indices.push(cardIndex)
+    props.sounds.flip.play()
   } else if (cardIndex === flippedCards.value.indices[0]) {
     flippedCards.value.indices.pop()
   } else {
@@ -149,6 +163,24 @@ function restart() {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+}
+
+@media (min-width: 578px) {
+  .game-area__cards-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .game-area__cards-container {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .game-area__cards-container {
+    grid-template-columns: repeat(12, 1fr);
+  }
 }
 
 .game-area.playing .game-area__pre-game-form {
