@@ -6,6 +6,7 @@ export interface MemoryCardProps {
   index: number
   isRevealed: boolean
   isMatched: boolean
+  isMisMatched: boolean
 }
 const props = defineProps<MemoryCardProps>()
 const emit = defineEmits(['flipCard'])
@@ -15,9 +16,9 @@ const emit = defineEmits(['flipCard'])
   <button
     type="button"
     class="memory-card"
-    :class="{ revealed: props.isRevealed }"
+    :class="{ revealed: props.isRevealed, matched: props.isMatched, mismatched: isMisMatched }"
     :disabled="props.isMatched"
-    @click="$emit('flipCard', props)"
+    @click="$emit('flipCard', props.index)"
   >
     <div class="memory-card__front">
       <img :src="props.cardFrontHref" :alt="props.cardName" />
@@ -31,10 +32,12 @@ const emit = defineEmits(['flipCard'])
 <style lang="css" scoped>
 .memory-card {
   --flip-animation-duration: 0.5s;
-  /* background-color: transparent; */
-  border: revert;
+  border: 1px solid var(--accent-color);
+  border-radius: 0.25rem;
   position: relative;
   perspective: 1000px;
+  background-color: transparent;
+  transition: background-color var(--flip-animation-duration);
 }
 
 .memory-card__front {
@@ -53,6 +56,8 @@ const emit = defineEmits(['flipCard'])
 }
 
 .memory-card.revealed {
+  background-color: var(--warning-color);
+
   .memory-card__front {
     transform: rotateY(0deg);
   }
@@ -61,5 +66,13 @@ const emit = defineEmits(['flipCard'])
     /* Hide back while front is shown */
     backface-visibility: hidden;
   }
+}
+
+.memory-card.matched {
+  background-color: var(--success-color);
+}
+
+.memory-card.mismatched {
+  background-color: var(--danger-color);
 }
 </style>

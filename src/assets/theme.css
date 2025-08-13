@@ -37,6 +37,8 @@
     --foreground-color: var(--gray-30);
     --accent-color: var(--brand-color-50);
 
+    --success-color: oklch(73% 0.13977 145.012);
+    --warning-color: oklch(86% 0.17676 90.387);
     --danger-color: oklch(65% 0.22839 26.164);
   }
 }

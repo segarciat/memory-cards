@@ -19,10 +19,15 @@ const DIFFICULTIES = {
   medium: 24,
   hard: 36,
 }
+const MISMATCH_FLIP_DELAY = 1000
 
 const isPlaying = ref(false)
+const flippedCards = ref({
+  indices: [] as number[],
+  timeoutId: undefined as number | undefined,
+})
 const gameDifficulty = ref(Object.keys(DIFFICULTIES)[0] as keyof typeof DIFFICULTIES)
-const shuffledCards = ref<Array<MemoryCardProps> | null>(null)
+const shuffledCards = ref<Array<MemoryCardProps>>([])
 
 function play(difficulty: keyof typeof DIFFICULTIES) {
   gameDifficulty.value = difficulty
@@ -34,21 +39,61 @@ function play(difficulty: keyof typeof DIFFICULTIES) {
     cardFrontHref: c.cardFrontHref,
     cardBackHref: props.cardBackHref,
     index,
-    isMatched: false,
     isRevealed: false,
+    isMisMatched: false,
+    isMatched: false,
   }))
   isPlaying.value = true
 }
 
-function flipCard(card: MemoryCardProps) {
-  if (shuffledCards.value != null) {
-    shuffledCards.value[card.index].isRevealed = !shuffledCards.value[card.index].isRevealed
+function hideMismatchedCards() {
+  clearTimeout(flippedCards.value.timeoutId)
+  if (shuffledCards.value) {
+    flippedCards.value.indices.forEach((idx) => {
+      const card = shuffledCards.value[idx]
+      card.isRevealed = false
+      card.isMisMatched = false
+    })
+  }
+  flippedCards.value.indices.splice(0)
+  flippedCards.value.timeoutId = undefined
+}
+
+function flipCard(cardIndex: number) {
+  if (flippedCards.value.indices.length == 2) {
+    hideMismatchedCards()
+  }
+
+  const current = shuffledCards.value[cardIndex]
+  current.isRevealed = !current.isRevealed
+
+  if (flippedCards.value.indices.length === 0) {
+    flippedCards.value.indices.push(cardIndex)
+  } else if (cardIndex === flippedCards.value.indices[0]) {
+    flippedCards.value.indices.pop()
+  } else {
+    flippedCards.value.indices.push(cardIndex)
+    tryMatch()
+  }
+}
+
+function tryMatch() {
+  const first = shuffledCards.value[flippedCards.value.indices[0]]
+  const second = shuffledCards.value[flippedCards.value.indices[1]]
+  if (first.cardName === second.cardName) {
+    first.isMatched = true
+    second.isMatched = true
+    flippedCards.value.indices.splice(0)
+  } else {
+    first.isMisMatched = true
+    second.isMisMatched = true
+    flippedCards.value.timeoutId = setTimeout(hideMismatchedCards, MISMATCH_FLIP_DELAY)
   }
 }
 
 function quit() {
   isPlaying.value = false
-  shuffledCards.value = null
+  shuffledCards.value = []
 }
 
 function restart() {
@@ -68,7 +113,7 @@ function restart() {
     <div class="game-area__in-game-form">
       <InGameForm @quit="quit" @restart="restart" />
     </div>
-    <template v-if="isPlaying && shuffledCards">
+    <template v-if="isPlaying">
       <div class="game-area__cards-container">
         <MemoryCard
           v-for="c in shuffledCards"
@@ -78,6 +123,7 @@ function restart() {
           :index="c.index"
           :is-revealed="c.isRevealed"
           :is-matched="c.isMatched"
+          :is-mis-matched="c.isMisMatched"
           @flip-card="flipCard"
         />
       </div>
