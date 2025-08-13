@@ -36,5 +36,7 @@
     --background-color: var(--gray-90);
     --foreground-color: var(--gray-30);
     --accent-color: var(--brand-color-50);
+
+    --danger-color: oklch(65% 0.22839 26.164);
   }
 }

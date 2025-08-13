@@ -2,18 +2,18 @@
 import { capitalize } from '@/utils'
 import { ref } from 'vue'
 
-export interface GameOptionsFormProps {
+export interface PreGameFormProps {
   gameDifficulties: Array<string>
 }
-const props = defineProps<GameOptionsFormProps>()
+const props = defineProps<PreGameFormProps>()
 defineEmits(['playGame'])
 
 const difficulty = ref(props.gameDifficulties[0])
 </script>
 
 <template>
-  <form @submit.prevent="$emit('playGame', difficulty)" class="game-options-form">
-    <div class="game-options-form__form-field">
+  <form @submit.prevent="$emit('playGame', difficulty)" class="pre-game-form">
+    <div class="pre-game-form__form-field">
       <label for="difficulty">Difficulty</label>
       <select id="difficulty" v-model="difficulty">
         <option disabled value="">Select difficulty</option>
@@ -22,37 +22,37 @@ const difficulty = ref(props.gameDifficulties[0])
         </option>
       </select>
     </div>
-    <button type="submit" class="game-options-form__play-button">Play</button>
+    <button type="submit" class="pre-game-form__play-button">Play</button>
   </form>
 </template>
 
 <style scoped>
-.game-options-form {
+.pre-game-form {
   display: flex;
   flex-direction: column;
 }
 
-.game-options-form__form-field {
+.pre-game-form__form-field {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   margin: 0.5rem;
 }
 
-.game-options-form__form-field > label {
+.pre-game-form__form-field > label {
   font-weight: bold;
 }
 
-.game-options-form__form-field > select {
+.pre-game-form__form-field > select {
   font-size: 0.75rem;
   padding: 0.25rem;
 }
 
-.game-options-form__form-field > select > option {
-  font-size: 1rem;
+.pre-game-form__form-field > select > option {
+  font-size: 1.25rem;
 }
 
-.game-options-form__play-button {
+.pre-game-form__play-button {
   display: block;
   font-size: 1.1rem;
   padding: 0.8rem 1.7rem;

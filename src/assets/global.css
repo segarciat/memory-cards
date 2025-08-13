@@ -9,7 +9,8 @@
     color: var(--brand-color-50);
   }
 
-  button {
+  button,
+  input[type='submit'] {
     cursor: pointer;
   }
 
