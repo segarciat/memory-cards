@@ -9,6 +9,9 @@
 
 <style scoped>
 .page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 0.625rem;
   text-align: center;
   padding: 1rem 0.5rem;
@@ -20,6 +23,7 @@
 }
 
 .page-header__description {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  max-width: 75%;
 }
 </style>

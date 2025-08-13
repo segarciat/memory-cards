@@ -4,11 +4,12 @@ import { ref } from 'vue'
 
 export interface PreGameFormProps {
   gameDifficulties: Array<string>
+  currentDifficulty: string
 }
 const props = defineProps<PreGameFormProps>()
 defineEmits(['playGame'])
 
-const difficulty = ref(props.gameDifficulties[0])
+const difficulty = ref(props.currentDifficulty)
 </script>
 
 <template>

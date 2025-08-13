@@ -3,18 +3,22 @@ export interface MemoryCardProps {
   cardName: string
   cardBackHref: string
   cardFrontHref: string
+  index: number
+  isRevealed: boolean
+  isMatched: boolean
 }
 const props = defineProps<MemoryCardProps>()
-import { ref } from 'vue'
-const isRevealed = ref(false)
-
-function revealCard() {
-  isRevealed.value = !isRevealed.value
-}
+const emit = defineEmits(['flipCard'])
 </script>
 
 <template>
-  <button type="button" class="memory-card" :class="{ revealed: isRevealed }" @click="revealCard">
+  <button
+    type="button"
+    class="memory-card"
+    :class="{ revealed: props.isRevealed }"
+    :disabled="props.isMatched"
+    @click="$emit('flipCard', props)"
+  >
     <div class="memory-card__front">
       <img :src="props.cardFrontHref" :alt="props.cardName" />
     </div>
@@ -35,15 +39,16 @@ function revealCard() {
 
 .memory-card__front {
   position: relative;
-  transition: transform var(--flip-animation-duration);
   transform: rotateY(180deg);
+  transition: transform var(--flip-animation-duration);
 }
 
 .memory-card__back {
   position: absolute;
   top: 0;
 
-  backface-visibility: hidden;
+  /* Immediately show back as soon as front is hidden */
+  backface-visibility: visible;
   transition: transform var(--flip-animation-duration);
 }
 
@@ -53,6 +58,8 @@ function revealCard() {
   }
   .memory-card__back {
     transform: rotateY(180deg);
+    /* Hide back while front is shown */
+    backface-visibility: hidden;
   }
 }
 </style>

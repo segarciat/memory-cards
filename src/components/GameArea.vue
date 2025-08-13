@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import MemoryCard from './MemoryCard.vue'
+import MemoryCard, { type MemoryCardProps } from './MemoryCard.vue'
 import { shuffleArray, subset } from '@/utils'
 import PreGameForm from './PreGameForm.vue'
 import InGameForm from './InGameForm.vue'
@@ -22,19 +22,33 @@ const DIFFICULTIES = {
 
 const isPlaying = ref(false)
 const gameDifficulty = ref(Object.keys(DIFFICULTIES)[0] as keyof typeof DIFFICULTIES)
-let shuffledCards: GameAreaProps['cardFrontHrefs'] = []
+const shuffledCards = ref<Array<MemoryCardProps> | null>(null)
 
 function play(difficulty: keyof typeof DIFFICULTIES) {
   gameDifficulty.value = difficulty
+  let cards = subset(props.cardFrontHrefs, DIFFICULTIES[difficulty])
+  cards = [...cards, ...cards]
+  shuffleArray(cards)
+  shuffledCards.value = cards.map((c, index) => ({
+    cardName: c.cardName,
+    cardFrontHref: c.cardFrontHref,
+    cardBackHref: props.cardBackHref,
+    index,
+    isMatched: false,
+    isRevealed: false,
+  }))
   isPlaying.value = true
-  shuffledCards = subset(props.cardFrontHrefs, DIFFICULTIES[difficulty])
-  shuffledCards = [...shuffledCards, ...shuffledCards]
-  shuffleArray(shuffledCards)
+}
+
+function flipCard(card: MemoryCardProps) {
+  if (shuffledCards.value != null) {
+    shuffledCards.value[card.index].isRevealed = !shuffledCards.value[card.index].isRevealed
+  }
 }
 
 function quit() {
   isPlaying.value = false
-  shuffledCards = []
+  shuffledCards.value = null
 }
 
 function restart() {
@@ -45,20 +59,29 @@ function restart() {
 <template>
   <main class="game-area" :class="{ playing: isPlaying }">
     <div class="game-area__pre-game-form">
-      <PreGameForm :game-difficulties="Object.keys(DIFFICULTIES)" @play-game="play" />
+      <PreGameForm
+        :game-difficulties="Object.keys(DIFFICULTIES)"
+        :current-difficulty="gameDifficulty"
+        @play-game="play"
+      />
     </div>
     <div class="game-area__in-game-form">
       <InGameForm @quit="quit" @restart="restart" />
     </div>
-    <div class="game-area__cards-container">
-      <MemoryCard
-        v-for="c in shuffledCards"
-        :key="c.cardName"
-        :card-front-href="c.cardFrontHref"
-        :card-name="c.cardName"
-        :card-back-href="props.cardBackHref"
-      />
-    </div>
+    <template v-if="isPlaying && shuffledCards">
+      <div class="game-area__cards-container">
+        <MemoryCard
+          v-for="c in shuffledCards"
+          :card-front-href="c.cardFrontHref"
+          :card-name="c.cardName"
+          :card-back-href="props.cardBackHref"
+          :index="c.index"
+          :is-revealed="c.isRevealed"
+          :is-matched="c.isMatched"
+          @flip-card="flipCard"
+        />
+      </div>
+    </template>
   </main>
 </template>
 
