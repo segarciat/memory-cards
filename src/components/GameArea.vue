@@ -2,19 +2,9 @@
 import { ref } from 'vue'
 import PreGameForm from './PreGameForm.vue'
 import InGameForm from './InGameForm.vue'
-import MemoryCards from './MemoryCards.vue'
+import MemoryCards, { type CardAssets } from './MemoryCards.vue'
 
-export interface GameAreaProps {
-  cardBackHref: string
-  cardFrontHrefs: Array<{
-    cardName: string
-    cardFrontHref: string
-  }>
-  sounds: {
-    flip: HTMLAudioElement
-    shuffle: HTMLAudioElement
-  }
-}
+export interface GameAreaProps extends CardAssets {}
 enum GameState {
   PreGame,
   SettingUp,
@@ -24,7 +14,7 @@ enum GameState {
 const props = defineProps<GameAreaProps>()
 
 const DIFFICULTIES = {
-  easy: Math.min(12, props.cardFrontHrefs.length),
+  easy: Math.min(2, props.cardFrontHrefs.length),
   medium: Math.min(24, props.cardFrontHrefs.length),
   hard: Math.min(36, props.cardFrontHrefs.length),
 }

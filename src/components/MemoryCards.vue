@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { shuffleArray, subset } from '@/utils'
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
-export interface MemoryCards {
-  numCards: number
+export interface CardAssets {
   cardBackHref: string
   cardFrontHrefs: Array<{
     cardName: string
     cardFrontHref: string
   }>
   sounds: {
-    flip: HTMLAudioElement
-    shuffle: HTMLAudioElement
+    flip: () => HTMLAudioElement
+    shuffle: () => HTMLAudioElement
+    wrong: () => HTMLAudioElement
+    correct: () => HTMLAudioElement
+    victory: () => HTMLAudioElement
   }
+}
+
+export interface MemoryCards extends CardAssets {
+  numCards: number
   doShuffle: boolean
 }
 interface MemoryCard {
@@ -36,6 +42,7 @@ const flippedCards = ref({
   indices: [] as number[],
   timeoutId: undefined as number | undefined,
 })
+const unmatchedCards = ref<Set<string>>(new Set())
 
 watch(
   doShuffle,
@@ -49,6 +56,7 @@ watch(
 
 async function shuffleCards() {
   let cardHrefs = subset(props.cardFrontHrefs, props.numCards)
+  unmatchedCards.value = new Set(cardHrefs.map((c) => c.cardName))
   cardHrefs = [...cardHrefs, ...cardHrefs]
   shuffleArray(cardHrefs)
   cards.value = cardHrefs.map((c, index) => ({
@@ -63,7 +71,7 @@ async function shuffleCards() {
   }))
   hideMismatchedCards()
   await nextTick()
-  props.sounds.shuffle.play()
+  props.sounds.shuffle().play()
   emit('shuffled')
 }
 
@@ -92,7 +100,7 @@ function flipCard(cardIndex: number) {
   } else {
     current.isRevealed = true
     flippedCards.value.indices.push(cardIndex)
-    props.sounds.flip.play()
+    props.sounds.flip().play()
   }
 
   if (flippedCards.value.indices.length == 2) {
@@ -101,10 +109,17 @@ function flipCard(cardIndex: number) {
       prev.isMatched = true
       current.isMatched = true
       flippedCards.value.indices.splice(0)
+      unmatchedCards.value.delete(current.cardName)
+      if (unmatchedCards.value.size === 0) {
+        props.sounds.victory().play()
+      } else {
+        props.sounds.correct().play()
+      }
     } else {
       prev.isMisMatched = true
       current.isMisMatched = true
       flippedCards.value.timeoutId = setTimeout(hideMismatchedCards, MISMATCH_FLIP_DELAY)
+      props.sounds.wrong().play()
     }
   }
 }

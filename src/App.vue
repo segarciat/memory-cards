@@ -6,7 +6,8 @@ import { onBeforeMount, ref } from 'vue'
 
 const CARD_IMAGES_PATH = '/kenney-cards/PNG/cards-large/'
 const CARD_BACK_HREF = `${CARD_IMAGES_PATH}/card_back.png`
-const AUDIO_DIR = '/kenney-casino-sfx'
+const KENNEY_AUDIO_DIR = '/kenney-casino-sfx'
+const FREESOUND_DIR = '/freesound'
 
 const cardFrontHrefs = ref<GameAreaProps['cardFrontHrefs'] | null>(null)
 let sounds = ref<GameAreaProps['sounds'] | null>(null)
@@ -22,12 +23,20 @@ async function loadCardImageHrefs() {
 
 async function loadSounds() {
   sounds.value = {
-    flip: new Audio(`${AUDIO_DIR}/card-slide-4.ogg`),
-    shuffle: new Audio(`${AUDIO_DIR}/card-shove-1.ogg`),
+    flip: () => {
+      const sound = new Audio(`${KENNEY_AUDIO_DIR}/card-slide-4.ogg`)
+      sound.playbackRate = 1.5
+      return sound
+    },
+    shuffle: () => {
+      const sound = new Audio(`${KENNEY_AUDIO_DIR}/card-shove-1.ogg`)
+      sound.playbackRate = 1.5
+      return sound
+    },
+    wrong: () => new Audio(`${FREESOUND_DIR}/timgormly_mismatch.ogg`),
+    correct: () => new Audio(`${FREESOUND_DIR}/unadamlar_match.wav`),
+    victory: () => new Audio(`${FREESOUND_DIR}/Breviceps_confetti.wav`),
   }
-
-  sounds.value.flip.playbackRate = 1.5
-  sounds.value.shuffle.playbackRate = 1.5
 }
 
 onBeforeMount(async () => {
