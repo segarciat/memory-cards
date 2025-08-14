@@ -2,7 +2,7 @@
   <header class="page-header">
     <h1 class="page-header__title">Memory Cards</h1>
     <p class="page-header__description">
-      The classic game where you flip cards to identify all matching pairs.
+      The classic game where you flip cards to find all matching pairs.
     </p>
   </header>
 </template>

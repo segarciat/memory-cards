@@ -1,5 +1,6 @@
 @layer theme {
   :root {
+    --container-size: 1080px;
     --font-main: Arial, Helvetica, sans-serif;
     --font-heading: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 

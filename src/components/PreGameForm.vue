@@ -50,7 +50,7 @@ const difficulty = ref(props.currentDifficulty)
 }
 
 .pre-game-form__form-field > select > option {
-  font-size: 1.25rem;
+  font-size: 0.8rem;
 }
 
 .pre-game-form__play-button {

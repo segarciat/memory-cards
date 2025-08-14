@@ -33,7 +33,7 @@ interface MemoryCard {
 }
 
 const props = defineProps<MemoryCards>()
-const emit = defineEmits(['shuffled'])
+const emit = defineEmits(['shuffled', 'victory'])
 
 const MISMATCH_FLIP_DELAY = 1000
 const doShuffle = computed(() => props.doShuffle)
@@ -111,7 +111,10 @@ function flipCard(cardIndex: number) {
       flippedCards.value.indices.splice(0)
       unmatchedCards.value.delete(current.cardName)
       if (unmatchedCards.value.size === 0) {
-        props.sounds.victory().play()
+        setTimeout(() => {
+          props.sounds.victory().play()
+          emit('victory')
+        }, 500)
       } else {
         props.sounds.correct().play()
       }
@@ -130,7 +133,7 @@ function doneShuffling(index: number) {
 </script>
 
 <template>
-  <div ref="memory-cards" class="memory-cards">
+  <div class="memory-cards">
     <button
       v-for="c in cards"
       type="button"
@@ -144,12 +147,8 @@ function doneShuffling(index: number) {
         :class="{ shake: c.doShake }"
         @animationend="doneShuffling(c.index)"
       >
-        <div class="memory-cards__card-front">
-          <img :src="c.cardFrontHref" :alt="c.cardName" />
-        </div>
-        <div class="memory-cards__card-back">
-          <img :src="props.cardBackHref" alt="Back of a card" />
-        </div>
+        <img class="memory-cards__card-front" :src="c.cardFrontHref" :alt="c.cardName" />
+        <img class="memory-cards__card-back" :src="props.cardBackHref" alt="Back of a card" />
       </div>
     </button>
   </div>
@@ -157,63 +156,52 @@ function doneShuffling(index: number) {
 
 <style scoped>
 .memory-cards {
-  padding: 1rem;
+  --card-size: 112px;
+  --flip-animation-duration: 0.5s;
+
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, var(--card-size));
+  justify-content: center;
   gap: 1rem;
-}
 
-@media (min-width: 578px) {
-  .memory-cards {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .memory-cards {
-    grid-template-columns: repeat(8, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .memory-cards {
-    grid-template-columns: repeat(12, 1fr);
-  }
+  padding: 1rem;
+  width: 100%;
 }
 
 .memory-cards__card {
-  --flip-animation-duration: 0.5s;
-  padding-block: 0.5rem;
   border: 1px solid var(--accent-color);
   border-radius: 0.25rem;
-  position: relative;
+
   perspective: 1000px;
   background-color: transparent;
   transition: background-color var(--flip-animation-duration);
+}
+
+.memory-cards__card-inner {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
 }
 
 .memory-cards__card-inner.shake {
   animation: shake 0.25s ease-out 3;
 }
 
-/* This enables adding padding in .memory-cards__card in spite of the absolute positioning of the back card */
-.memory-cards__card-inner {
-  position: relative;
+.memory-cards__card-front,
+.memory-cards__card-back {
+  position: absolute;
+  width: 100%;
+  padding: 0.75rem;
+  transition: transform var(--flip-animation-duration);
 }
 
 .memory-cards__card-front {
-  position: relative;
   transform: rotateY(180deg);
-  transition: transform var(--flip-animation-duration);
 }
 
 .memory-cards__card-back {
-  position: absolute;
-  top: 0;
-
   /* Immediately show back as soon as front is hidden */
   backface-visibility: visible;
-  transition: transform var(--flip-animation-duration);
 }
 
 .memory-cards__card.revealed {
