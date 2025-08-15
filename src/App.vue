@@ -3,6 +3,7 @@ import PageHeader from './components/PageHeader.vue'
 import GameArea, { type GameAreaProps } from './components/GameArea.vue'
 import PageFooter from './components/PageFooter.vue'
 import { onBeforeMount, ref } from 'vue'
+import isMuted from './shared-state/isMuted'
 
 const CARD_IMAGES_PATH = '/kenney-cards/PNG/cards-large/'
 const CARD_BACK_HREF = `${CARD_IMAGES_PATH}/card_back.png`
@@ -11,6 +12,14 @@ const FREESOUND_DIR = '/freesound'
 
 const cardFrontHrefs = ref<GameAreaProps['cardFrontHrefs'] | null>(null)
 let sounds = ref<GameAreaProps['sounds'] | null>(null)
+
+function playSound(soundFilePath: string, playbackRate: number = 1) {
+  if (!isMuted.value) {
+    const sound = new Audio(soundFilePath)
+    sound.playbackRate = playbackRate
+    sound.play()
+  }
+}
 
 async function loadCardImageHrefs() {
   const res = await fetch(`${CARD_IMAGES_PATH}/_cards.csv`)
@@ -21,27 +30,19 @@ async function loadCardImageHrefs() {
   }))
 }
 
-async function loadSounds() {
+function setSounds() {
   sounds.value = {
-    flip: () => {
-      const sound = new Audio(`${KENNEY_AUDIO_DIR}/card-slide-4.ogg`)
-      sound.playbackRate = 1.5
-      return sound
-    },
-    shuffle: () => {
-      const sound = new Audio(`${KENNEY_AUDIO_DIR}/card-shove-1.ogg`)
-      sound.playbackRate = 1.5
-      return sound
-    },
-    wrong: () => new Audio(`${FREESOUND_DIR}/timgormly_mismatch.ogg`),
-    correct: () => new Audio(`${FREESOUND_DIR}/unadamlar_match.wav`),
-    victory: () => new Audio(`${FREESOUND_DIR}/Breviceps_confetti.wav`),
+    flip: () => playSound(`${KENNEY_AUDIO_DIR}/card-slide-4.ogg`, 1.5),
+    shuffle: () => playSound(`${KENNEY_AUDIO_DIR}/card-shove-1.ogg`, 1.5),
+    wrong: () => playSound(`${FREESOUND_DIR}/timgormly_mismatch.ogg`),
+    correct: () => playSound(`${FREESOUND_DIR}/unadamlar_match.wav`),
+    victory: () => playSound(`${FREESOUND_DIR}/Breviceps_confetti.wav`),
   }
 }
 
 onBeforeMount(async () => {
   await loadCardImageHrefs()
-  await loadSounds()
+  setSounds()
 })
 </script>
 

@@ -4,6 +4,7 @@ import PreGameForm from './PreGameForm.vue'
 import InGameForm from './InGameForm.vue'
 import MemoryCards, { type CardAssets } from './MemoryCards.vue'
 import VictoryImage from './VictoryImage.vue'
+import SoundMuteButton from './SoundMuteButton.vue'
 
 export interface GameAreaProps extends CardAssets {}
 enum GameState {
@@ -48,12 +49,14 @@ function handleVictory() {
 <template>
   <main class="game-area" :class="{ playing: gameState }">
     <div class="game-area__container">
+      <SoundMuteButton />
       <PreGameForm
         v-if="gameState === GameState.PreGame || gameState === GameState.Victory"
         :game-difficulties="Object.keys(DIFFICULTIES)"
         :current-difficulty="gameDifficulty"
         @play-game="setupGame"
       />
+
       <VictoryImage v-if="gameState === GameState.Victory" />
       <InGameForm v-if="gameState === GameState.InProgress" @quit="quit" @restart="restart" />
       <MemoryCards
@@ -78,6 +81,7 @@ function handleVictory() {
 .game-area__container {
   padding: 1rem;
   display: flex;
+  gap: 0.75rem;
   flex-direction: column;
   align-items: center;
   max-inline-size: var(--container-size);

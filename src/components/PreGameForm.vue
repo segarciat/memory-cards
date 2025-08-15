@@ -31,13 +31,13 @@ const difficulty = ref(props.currentDifficulty)
 .pre-game-form {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .pre-game-form__form-field {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin: 0.5rem;
 }
 
 .pre-game-form__form-field > label {

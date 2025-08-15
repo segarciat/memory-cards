@@ -9,11 +9,11 @@ export interface CardAssets {
     cardFrontHref: string
   }>
   sounds: {
-    flip: () => HTMLAudioElement
-    shuffle: () => HTMLAudioElement
-    wrong: () => HTMLAudioElement
-    correct: () => HTMLAudioElement
-    victory: () => HTMLAudioElement
+    flip: () => void
+    shuffle: () => void
+    wrong: () => void
+    correct: () => void
+    victory: () => void
   }
 }
 
@@ -71,7 +71,7 @@ async function shuffleCards() {
   }))
   hideMismatchedCards()
   await nextTick()
-  props.sounds.shuffle().play()
+  props.sounds.shuffle()
   emit('shuffled')
 }
 
@@ -100,7 +100,7 @@ function flipCard(cardIndex: number) {
   } else {
     current.isRevealed = true
     flippedCards.value.indices.push(cardIndex)
-    props.sounds.flip().play()
+    props.sounds.flip()
   }
 
   if (flippedCards.value.indices.length == 2) {
@@ -112,17 +112,17 @@ function flipCard(cardIndex: number) {
       unmatchedCards.value.delete(current.cardName)
       if (unmatchedCards.value.size === 0) {
         setTimeout(() => {
-          props.sounds.victory().play()
+          props.sounds.victory()
           emit('victory')
         }, 500)
       } else {
-        props.sounds.correct().play()
+        props.sounds.correct()
       }
     } else {
       prev.isMisMatched = true
       current.isMisMatched = true
       flippedCards.value.timeoutId = setTimeout(hideMismatchedCards, MISMATCH_FLIP_DELAY)
-      props.sounds.wrong().play()
+      props.sounds.wrong()
     }
   }
 }
@@ -164,7 +164,6 @@ function doneShuffling(index: number) {
   justify-content: center;
   gap: 1rem;
 
-  padding: 1rem;
   width: 100%;
 }
 
