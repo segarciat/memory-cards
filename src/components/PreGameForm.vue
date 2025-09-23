@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { capitalize } from '@/utils'
+import { capitalize } from '@/lib/utils'
 import { ref } from 'vue'
 
 export interface PreGameFormProps {

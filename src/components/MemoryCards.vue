@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shuffleArray, subset } from '@/utils'
+import { shuffleArray, subset } from '@/lib/utils'
 import { computed, nextTick, ref, watch } from 'vue'
 
 export interface CardAssets {

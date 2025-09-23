@@ -1,3 +1,7 @@
+/**
+ * Shuffles an array in-place.
+ * @param a The array to be shuffled in-place.
+ */
 export function shuffleArray<T>(a: T[]) {
   if (!Array.isArray(a)) {
     throw Error('Invalid input: not an array')
