@@ -17,27 +17,37 @@ export function shuffleArray<T>(a: T[]) {
   }
 }
 
+/**
+ * Create an array containing a random subset of the elements of `a` of size `subsetSize`.
+ * @param a The source array.
+ * @param subsetSize The desired number of elements in the result.
+ * @returns An array with `subsetSize` random elemets of `a`.
+ */
 export function subset<T>(a: T[], subsetSize: number): T[] {
   if (!Array.isArray(a)) {
     throw Error('Must provide an array')
   }
+
   const n = a.length
   if (subsetSize < 1 || subsetSize > n) {
     throw Error('Subset size must be positive and cannot exceed array size')
   }
 
-  const s = new Set<number>()
-  while (s.size != subsetSize) {
-    const i = Math.floor(Math.random() * n)
-    s.add(i)
-  }
-
-  return Array.from(s).map((index) => a[index])
+  const aCopy = a.slice()
+  shuffleArray(aCopy)
+  return aCopy.slice(0, subsetSize);
 }
 
+/**
+ * Capitalizes a string, making its character uppercase and remaining lowercase.
+ * @param s A string.
+ * @returns A capitalized version of `s`.
+ * @example
+ * capitalize('meMoRy') // 'Memory'
+ */
 export function capitalize(s: string): string {
   if (typeof s != 'string') {
     throw Error('Input must be a string')
   }
-  return s.length == 0 ? s : s[0].toUpperCase() + s.substring(1)
+  return s.length == 0 ? s : s[0].toUpperCase() + s.substring(1).toLowerCase()
 }
