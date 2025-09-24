@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import VolumeOnIcon from './icons/VolumeOnIcon.vue'
 import VolumeOffIcon from './icons/VolumeOffIcon.vue'
-import isMuted, { toggleIsMuted } from '@/shared-state/isMuted'
+
+const props = defineProps({
+  isMuted: Boolean,
+})
 </script>
 
 <template>
-  <button class="sound-btn" :class="{ muted: isMuted }" @click="toggleIsMuted">
+  <button class="sound-btn" :class="{ muted: isMuted }">
     <VolumeOffIcon v-if="isMuted" />
     <VolumeOnIcon v-else />
   </button>

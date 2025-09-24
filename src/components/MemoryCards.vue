@@ -1,163 +1,124 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import MemoryCard, { type MemoryCardProps } from './MemoryCard.vue'
 import { shuffleArray, subset } from '@/lib/utils'
-import { computed, nextTick, ref, watch } from 'vue'
 
-export interface CardAssets {
-  cardBackHref: string
-  cardFrontHrefs: Array<{
-    cardName: string
-    cardFrontHref: string
-  }>
-  sounds: {
-    flip: () => void
-    shuffle: () => void
-    wrong: () => void
-    correct: () => void
-    victory: () => void
-  }
+export interface CardData {
+  backCard: { name: string; href: string }
+  frontCards: Array<{ name: string; href: string }>
 }
 
-export interface MemoryCards extends CardAssets {
+export interface Sounds {
+  flip: () => void
+  shuffle: () => void
+  wrong: () => void
+  correct: () => void
+  victory: () => void
+}
+
+const MISMATCH_FLIP_DELAY = 1_000
+
+const emit = defineEmits(['victory'])
+const props = defineProps<{
+  cardData: CardData
+  sounds: Sounds
   numCards: number
-  doShuffle: boolean
-}
-interface MemoryCard {
-  cardName: string
-  cardFrontHref: string
-  cardBackHref: string
-  index: number
-  isRevealed: boolean
-  isMisMatched: boolean
-  isMatched: boolean
-  doShake: boolean
-}
+}>()
 
-const props = defineProps<MemoryCards>()
-const emit = defineEmits(['shuffled', 'victory'])
-
-const MISMATCH_FLIP_DELAY = 1000
-const doShuffle = computed(() => props.doShuffle)
-const cards = ref<MemoryCard[]>([])
-const flippedCards = ref({
-  indices: [] as number[],
+const selectedFrontCards = computed(() => subset(props.cardData.frontCards, props.numCards))
+const unmatchedCards = ref(new Set(selectedFrontCards.value.map((c) => c.name)))
+const memoryCards = ref(initializeMemoryCards())
+const revealedCards = ref({
+  cards: [] as Array<MemoryCardProps>,
   timeoutId: undefined as number | undefined,
 })
-const unmatchedCards = ref<Set<string>>(new Set())
 
-watch(
-  doShuffle,
-  (newShuffle) => {
-    if (newShuffle) {
-      shuffleCards()
-    }
-  },
-  { immediate: true },
-)
-
-async function shuffleCards() {
-  let cardHrefs = subset(props.cardFrontHrefs, props.numCards)
-  unmatchedCards.value = new Set(cardHrefs.map((c) => c.cardName))
-  cardHrefs = [...cardHrefs, ...cardHrefs]
-  shuffleArray(cardHrefs)
-  cards.value = cardHrefs.map((c, index) => ({
-    cardName: c.cardName,
-    cardFrontHref: c.cardFrontHref,
-    cardBackHref: props.cardBackHref,
-    index,
+function initializeMemoryCards(): Array<MemoryCardProps> {
+  let cards = [...selectedFrontCards.value, ...selectedFrontCards.value]
+  shuffleArray(cards)
+  return cards.map(({ name, href }) => ({
+    backCard: props.cardData.backCard,
+    frontCard: { name, href },
     isRevealed: false,
-    isMisMatched: false,
     isMatched: false,
-    doShake: true,
+    isMismatched: false,
   }))
-  hideMismatchedCards()
-  await nextTick()
-  props.sounds.shuffle()
-  emit('shuffled')
 }
 
-function hideMismatchedCards() {
-  clearTimeout(flippedCards.value.timeoutId)
-  if (cards.value) {
-    flippedCards.value.indices.forEach((idx) => {
-      const card = cards.value[idx]
-      card.isRevealed = false
-      card.isMisMatched = false
-    })
-  }
-  flippedCards.value.indices.splice(0)
-  flippedCards.value.timeoutId = undefined
-}
-
-function flipCard(cardIndex: number) {
-  const current = cards.value[cardIndex]
-  if (flippedCards.value.timeoutId) {
+function flipCard(currentCard: MemoryCardProps) {
+  // Hide flipped cards, if any
+  if (revealedCards.value.timeoutId) {
     hideMismatchedCards()
   }
 
-  if (current.isRevealed) {
-    current.isRevealed = false
-    flippedCards.value.indices.pop()
+  // Flip clicked card
+  if (currentCard.isRevealed) {
+    revealedCards.value.cards.pop()
   } else {
-    current.isRevealed = true
-    flippedCards.value.indices.push(cardIndex)
+    revealedCards.value.cards.push(currentCard)
     props.sounds.flip()
   }
+  currentCard.isRevealed = !currentCard.isRevealed
 
-  if (flippedCards.value.indices.length == 2) {
-    const prev = cards.value[flippedCards.value.indices[0]]
-    if (prev.cardName === current.cardName) {
-      prev.isMatched = true
-      current.isMatched = true
-      flippedCards.value.indices.splice(0)
-      unmatchedCards.value.delete(current.cardName)
-      if (unmatchedCards.value.size === 0) {
-        setTimeout(() => {
-          props.sounds.victory()
-          emit('victory')
-        }, 500)
-      } else {
-        props.sounds.correct()
-      }
-    } else {
-      prev.isMisMatched = true
-      current.isMisMatched = true
-      flippedCards.value.timeoutId = setTimeout(hideMismatchedCards, MISMATCH_FLIP_DELAY)
-      props.sounds.wrong()
-    }
+  testMatch()
+}
+
+function testMatch() {
+  if (revealedCards.value.cards.length !== 2) {
+    return
+  }
+  const [previousCard, currentCard] = revealedCards.value.cards
+
+  // Wrong match
+  if (previousCard.frontCard.name !== currentCard.frontCard.name) {
+    props.sounds.wrong()
+    revealedCards.value.cards.forEach((c) => (c.isMismatched = true))
+    revealedCards.value.timeoutId = setTimeout(hideMismatchedCards, MISMATCH_FLIP_DELAY)
+    return
+  }
+
+  // It's a match!
+  props.sounds.correct()
+  revealedCards.value.cards.forEach((c) => (c.isMatched = true))
+  unmatchedCards.value.delete(currentCard.frontCard.name)
+  revealedCards.value.cards = []
+
+  // Is game over?
+  if (unmatchedCards.value.size === 0) {
+    setTimeout(() => {
+      props.sounds.victory()
+      emit('victory')
+    }, 500)
   }
 }
 
-function doneShuffling(index: number) {
-  cards.value[index].doShake = false
+function hideMismatchedCards() {
+  clearTimeout(revealedCards.value.timeoutId)
+  // Hide cards
+  revealedCards.value.cards.forEach((c) => {
+    c.isRevealed = false
+    c.isMismatched = false
+  })
+  revealedCards.value = {
+    cards: [],
+    timeoutId: undefined,
+  }
 }
+
+onMounted(() => {
+  props.sounds.shuffle()
+})
 </script>
 
 <template>
   <div class="memory-cards">
-    <button
-      v-for="c in cards"
-      type="button"
-      class="memory-cards__card"
-      :class="{ revealed: c.isRevealed, matched: c.isMatched, mismatched: c.isMisMatched }"
-      :disabled="c.isMatched || (c.isRevealed && !c.isMisMatched)"
-      @click="flipCard(c.index)"
-    >
-      <div
-        class="memory-cards__card-inner"
-        :class="{ shake: c.doShake }"
-        @animationend="doneShuffling(c.index)"
-      >
-        <img class="memory-cards__card-front" :src="c.cardFrontHref" :alt="c.cardName" />
-        <img class="memory-cards__card-back" :src="props.cardBackHref" alt="Back of a card" />
-      </div>
-    </button>
+    <MemoryCard v-for="card in memoryCards" v-bind="card" class="shake" @click="flipCard(card)" />
   </div>
 </template>
 
 <style scoped>
 .memory-cards {
   --card-size: 112px;
-  --flip-animation-duration: 0.5s;
 
   display: grid;
   grid-template-columns: repeat(auto-fit, var(--card-size));
@@ -167,61 +128,8 @@ function doneShuffling(index: number) {
   width: 100%;
 }
 
-.memory-cards__card {
-  border: 1px solid var(--accent-color);
-  border-radius: 0.25rem;
-
-  perspective: 1000px;
-  background-color: transparent;
-  transition: background-color var(--flip-animation-duration);
-}
-
-.memory-cards__card-inner {
-  width: 100%;
-  aspect-ratio: 1;
-  position: relative;
-}
-
-.memory-cards__card-inner.shake {
+.shake {
   animation: shake 0.25s ease-out 3;
-}
-
-.memory-cards__card-front,
-.memory-cards__card-back {
-  position: absolute;
-  width: 100%;
-  padding: 0.75rem;
-  transition: transform var(--flip-animation-duration);
-}
-
-.memory-cards__card-front {
-  transform: rotateY(180deg);
-}
-
-.memory-cards__card-back {
-  /* Immediately show back as soon as front is hidden */
-  backface-visibility: visible;
-}
-
-.memory-cards__card.revealed {
-  background-color: var(--warning-color);
-
-  .memory-cards__card-front {
-    transform: rotateY(0deg);
-  }
-  .memory-cards__card-back {
-    transform: rotateY(180deg);
-    /* Hide back while front is shown */
-    backface-visibility: hidden;
-  }
-}
-
-.memory-cards__card.matched {
-  background-color: var(--success-color);
-}
-
-.memory-cards__card.mismatched {
-  background-color: var(--danger-color);
 }
 
 @keyframes shake {
