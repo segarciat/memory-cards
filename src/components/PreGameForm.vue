@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { capitalize } from '@/utils'
+import { capitalize } from '@/lib/utils'
 import { ref } from 'vue'
 
 export interface PreGameFormProps {
   gameDifficulties: Array<string>
-  currentDifficulty: string
+  selectedDifficulty: string
 }
 const props = defineProps<PreGameFormProps>()
 defineEmits(['playGame'])
 
-const difficulty = ref(props.currentDifficulty)
+const difficulty = ref(props.selectedDifficulty)
 </script>
 
 <template>
