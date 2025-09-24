@@ -5,10 +5,10 @@ import PageFooter from './components/PageFooter.vue'
 import { onBeforeMount, ref } from 'vue'
 import isMuted from './shared-state/isMuted'
 
-const CARD_IMAGES_PATH = '/kenney-cards/PNG/cards-large/'
+const CARD_IMAGES_PATH = '/img/cards/'
 const CARD_BACK_HREF = `${CARD_IMAGES_PATH}/card_back.png`
-const KENNEY_AUDIO_DIR = '/kenney-casino-sfx'
-const FREESOUND_DIR = '/freesound'
+const KENNEY_AUDIO_DIR = '/sound/kenney-casino-sfx'
+const FREESOUND_DIR = '/sound/freesound'
 
 const cardFrontHrefs = ref<GameAreaProps['cardFrontHrefs'] | null>(null)
 let sounds = ref<GameAreaProps['sounds'] | null>(null)
