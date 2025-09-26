@@ -4,19 +4,17 @@ import { ref } from 'vue'
 
 export interface PreGameFormProps {
   gameDifficulties: Array<string>
-  selectedDifficulty: string
 }
 const props = defineProps<PreGameFormProps>()
+const selectedDifficulty = defineModel()
 defineEmits(['playGame'])
-
-const difficulty = ref(props.selectedDifficulty)
 </script>
 
 <template>
-  <form @submit.prevent="$emit('playGame', difficulty)" class="pre-game-form">
+  <form @submit.prevent="$emit('playGame', selectedDifficulty)" class="pre-game-form">
     <div class="pre-game-form__form-field">
       <label for="difficulty">Difficulty</label>
-      <select id="difficulty" v-model="difficulty">
+      <select id="difficulty" v-model="selectedDifficulty">
         <option disabled value="">Select difficulty</option>
         <option v-for="d in props.gameDifficulties" :key="d" :value="d">
           {{ capitalize(d) }}

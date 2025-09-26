@@ -36,8 +36,7 @@ function toggleMute() {
   isMuted.value = !isMuted.value
 }
 
-function startGame(difficulty: GameDifficulty) {
-  selectedDifficulty.value = difficulty
+function startGame() {
   gameState.value = GameState.InProgress
 }
 
@@ -110,7 +109,7 @@ onBeforeMount(async () => {
       <PreGameForm
         v-if="gameState === GameState.PreGame || gameState === GameState.Victory"
         :game-difficulties="Object.values(GameDifficulty)"
-        :selected-difficulty="selectedDifficulty"
+        v-model="selectedDifficulty"
         @play-game="startGame"
       />
       <VictoryImage v-if="gameState === GameState.Victory" />
